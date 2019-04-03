@@ -19,24 +19,22 @@ from pgapi_backup.backrest import backrest as backup
     """
 
 class _Backup(Resource):
-    def get(self):
+    def get(self, clusteridentifier=None):
         logging.info("GET Request for Backups")
-        backups = backup().list_clusters()
-        return jsonify(backups)
+        if clusteridentifier:
+            out = backup().list_backups(clusteridentifier)
+        else:
+            out = backup().list_backups()
+        return jsonify(out)
 
-class _BackupCluster(Resource):
-    def get(self, clusteridentifier):
-        logging.info("GET Request for Backups")
-        backups = backup().list_backups()# in hindsight, we should do something different here
-        return jsonify(backups)
 
     def put(self, clusteridentifier):
-        logging.info("GET Request for Backups")
+        logging.info("PUT Request for Backups")
         backups = backup().list_backups()# in hindsight, we should do something different here
         return jsonify(backups)
 
-    def delete(self, clusteridentifier):
-        logging.info("GET Request for Backups")
+    def delete(self, clusteridentifier, backupidentfier):
+        logging.info("DELETE Request for Backups")
         backups = backup().list_backups()# in hindsight, we should do something different here
         return jsonify(backups)
 
@@ -47,5 +45,5 @@ class _BackupCluster(Resource):
 
 def registerHandlers(api):
     api.add_resource(_Backup, '/backup/', endpoint="backup")
-    api.add_resource(_BackupCluster, '/backup/<string:clusteridentifier>', endpoint="backup_clusteridentifier")
-    #api.add_resource(_Backup, '/backup/<string:clusteridentifier>/<string:identifier>', endpoint="backup_clusteridentifier")
+    api.add_resource(_Backup, '/backup/<string:clusteridentifier>', endpoint="backup_clusteridentifier")
+    api.add_resource(_Backup, '/backup/<string:clusteridentifier>/<string:backupidentfier>', endpoint="backup_clusteridentifier_backupidentifier")

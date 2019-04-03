@@ -15,8 +15,11 @@ class backupsolution:
         @_take_incremental_backup(self,cluster_identifier=None)
         @_take_logical_backup(self,cluster_identifier=None)
     """
-    
+
     def list_clusters(self):
+        """
+            { "Clusteridentifier: { "Backupidentifier": {},..}, ..}
+        """
         backupsolution._warn_not_implemented("list-clusters")
     def list_backups(self, cluster_identifier=None,  backupidentifier=None):
         backupsolution._warn_not_implemented("list-backups")

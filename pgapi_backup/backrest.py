@@ -5,12 +5,20 @@ from logging import debug, log, info, warning, critical
 
 class backrest( backupsolution ):
 
-    def  list_clusters(self):
-        (stdout, stderr) = backrest_cli.info() 
-        return [ line.split(': ')[-1] for line in stdout if "stanza: " in line ]
+    def  _list(self):
+        (stdout_json, stderr) = backrest_cli.info()
+        schema_corrected_output = {}
+        for cluster in stdout_json:
+            schema_corrected_output[ cluster['name'] ] = {}
+            for backup in cluster['backup']:
+                schema_corrected_output[ cluster['name'] ][ backup['label']] = backup
+        return schema_corrected_output
 
-    def  list_backups(self, cluster_identifier=None,  backupidentifier=None):
-        return {"a":1}
+    def  list_backups(self, cluster_identifier = None):
+        all_clusters =  self._list()
+        out = all_clusters[cluster_identifier] if cluster_identifier in all_clusters else all_clusters
+        return out
+        
 
     def _take_full_backup(self,cluster_identifier=None):
         pass

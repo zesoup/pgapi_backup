@@ -3,7 +3,7 @@ from logging import warning, debug
 
 from threading import Thread
 from collections import deque
-
+import json
 
 background_tasks = []
 
@@ -31,17 +31,5 @@ class cli:
 class backrest(cli):
     @staticmethod
     def info():
-        return cli._run_cmd( ["pgbackrest","info"],  blocking=True )
-
-
-
-if __name__=='__main__':
-        c=cli()
-        i=["bash","test.sh"]
-        c._run_cmd(cmd=i)
-        import time
-
-        for x in background_tasks:
-            print(x.returncode)
-
-        time.sleep(2)
+        (stdout, stderr) = cli._run_cmd( ["pgbackrest","info", "--output=json"],  blocking=True )
+        return (json.loads(''.join(stdout) ) , stderr)
