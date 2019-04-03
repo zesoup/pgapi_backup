@@ -14,25 +14,24 @@ class backrest( backupsolution ):
                 schema_corrected_output[ cluster['name'] ][ backup['label']] = backup
         return schema_corrected_output
 
-    def  list_backups(self, cluster_identifier = None):
+    def list_backups(self, cluster_identifier = None, backup_identifier = None):
         all_clusters =  self._list()
-        out = all_clusters[cluster_identifier] if cluster_identifier in all_clusters else all_clusters
+        if cluster_identifier:
+            if cluster_identifier in all_clusters:
+                out = all_clusters[cluster_identifier]
+            else:
+                raise Exception("Cluster does not exist")
+        elif backup_identifier:
+            raise Exception("Backupdetails not yet implemented")
+              
         return out
         
-
-    def _take_full_backup(self,cluster_identifier=None):
+    def _take_full_backup(self,cluster_identifier=None, options=None):
         pass
-    def _take_incremental_backup(self, cluster_identifier=None):
+    def _take_incremental_backup(self, cluster_identifier=None, options=None):
         pass
-
-
-if __name__=='__main__':    
-    from logging import getLogger,DEBUG
-    getLogger(__name__).setLevel(DEBUG)
-
-    br=backrest()
-    br.list_backups()
-
-    br.take_backup()
-    br.take_backup(kind='logical')
-    br.take_backup(kind='incremental')
+    def setup(cluster_identifier=None,  options=None):
+        pass
+    def check(cluster_identifier=None,  options=None):
+        pass
+    

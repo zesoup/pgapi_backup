@@ -19,21 +19,31 @@ from pgapi_backup.backrest import backrest as backup
     """
 
 class _Backup(Resource):
-    def get(self, clusteridentifier=None):
-        logging.info("GET Request for Backups")
-        if clusteridentifier:
-            out = backup().list_backups(clusteridentifier)
-        else:
-            out = backup().list_backups()
-        return jsonify(out)
+    def get(self, cluster_identifier=None, backup_identifier=None):
+        try:
+            logging.info("GET Request for Backups")
+            if backup_identifier:
+                out = backup().list_backups(backup_identifier=backup_identifier)
+            if cluster_identifier:
+                out = backup().list_backups(cluster_identifier=cluster_identifier)
+            else:
+                out = backup().list_backups()
+            return jsonify(out)
+        except Exception as e:
+            return abort ( 500, str(e) )
 
 
-    def put(self, clusteridentifier):
-        logging.info("PUT Request for Backups")
+    def put(self, cluster_identifier, backup_identfier):
+        """PUT creates a cluster or starts a backup.
+        To be somewhat REST compliant, it is of no relevance what
+        exactly we PUT to as /backupidentifier."""
+        logging.info("PUT Request")
+        if ( cluster_identifier and not backup_identifier):
+            backup().setup(cluster_identifier)
         backups = backup().list_backups()# in hindsight, we should do something different here
         return jsonify(backups)
 
-    def delete(self, clusteridentifier, backupidentfier):
+    def delete(self, cluster_identifier, backup_identfier):
         logging.info("DELETE Request for Backups")
         backups = backup().list_backups()# in hindsight, we should do something different here
         return jsonify(backups)
@@ -45,5 +55,5 @@ class _Backup(Resource):
 
 def registerHandlers(api):
     api.add_resource(_Backup, '/backup/', endpoint="backup")
-    api.add_resource(_Backup, '/backup/<string:clusteridentifier>', endpoint="backup_clusteridentifier")
-    api.add_resource(_Backup, '/backup/<string:clusteridentifier>/<string:backupidentfier>', endpoint="backup_clusteridentifier_backupidentifier")
+    api.add_resource(_Backup, '/backup/<string:cluster_identifier>', endpoint="backup_cluster_identifier")
+    api.add_resource(_Backup, '/backup/<string:cluster_identifier>/<string:backup_identifier>', endpoint="backup_cluster_identifier_backup_identifier")
