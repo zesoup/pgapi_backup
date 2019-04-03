@@ -17,13 +17,21 @@ class background_task(Thread):
             self.proc.poll()
 
 class cli:
-    def _run_cmd(self, cmd, stream=False, blocking=True ):
-        def poll_command( proc ):
-            proc = Popen(cmd, stdout=PIPE )#, stderr=PIPE)
-            if len(background_task) > 10:
-                warning( "More than 10 jobs active")
+    @staticmethod
+    def _run_cmd(cmd, blocking=True ):
+        proc = Popen(cmd, stdout=PIPE, stderr=PIPE)
+        if len(background_tasks) > 10:
+            warning( "More than 10 jobs active")
+        if blocking==False:
+            background_task( proc ).run()
+            return None
+        else:
+            return ([line.strip().decode('ascii') for line in proc.stdout], [line.strip().decode() for line in proc.stderr])
 
-            background_task( proc ).run()    
+class backrest(cli):
+    @staticmethod
+    def info():
+        return cli._run_cmd( ["pgbackrest","info"],  blocking=True )
 
 
 

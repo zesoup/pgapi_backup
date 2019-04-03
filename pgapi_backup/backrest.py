@@ -1,18 +1,20 @@
-from backup import backup
+from pgapi_backup.backupsolution import backupsolution
+from pgapi_backup.cliclasses import backrest as backrest_cli
+
 from logging import debug, log, info, warning, critical
-from subprocess import Popen, std
 
-class backrest( backup ):
-    def __init__(self,  cluster_version, cluster_name ):
-        super(  ).__init__(cluster_version, cluster_name)
-        debug("Backrest Initialized")
+class backrest( backupsolution ):
 
-    def  list_backups(self):
+    def  list_clusters(self):
+        (stdout, stderr) = backrest_cli.info() 
+        return [ line.split(': ')[-1] for line in stdout if "stanza: " in line ]
+
+    def  list_backups(self, cluster_identifier=None,  backupidentifier=None):
+        return {"a":1}
+
+    def _take_full_backup(self,cluster_identifier=None):
         pass
-
-    def _take_full_backup(self):
-        pass
-    def _take_incremental_backup(self):
+    def _take_incremental_backup(self, cluster_identifier=None):
         pass
 
 
@@ -20,7 +22,7 @@ if __name__=='__main__':
     from logging import getLogger,DEBUG
     getLogger(__name__).setLevel(DEBUG)
 
-    br=backrest('10','main')
+    br=backrest()
     br.list_backups()
 
     br.take_backup()
