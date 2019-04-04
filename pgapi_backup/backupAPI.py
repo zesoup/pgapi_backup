@@ -22,6 +22,7 @@ class _Backup(Resource):
     def get(self, cluster_identifier=None, backup_identifier=None):
         try:
             logging.info("GET Request for Backups")
+            out=None
             if backup_identifier:
                 out = backup().list_backups(backup_identifier=backup_identifier)
             if cluster_identifier:
@@ -33,20 +34,29 @@ class _Backup(Resource):
             return abort ( 500, str(e) )
 
 
-    def put(self, cluster_identifier, backup_identfier):
+    def put(self, cluster_identifier=None, backup_identifier=None):
         """PUT creates a cluster or starts a backup.
         To be somewhat REST compliant, it is of no relevance what
         exactly we PUT to as /backupidentifier."""
-        logging.info("PUT Request")
+        out = None
         if ( cluster_identifier and not backup_identifier):
-            backup().setup(cluster_identifier)
-        backups = backup().list_backups()# in hindsight, we should do something different here
-        return jsonify(backups)
+            out = backup().add_cluster(cluster_identifier, )
+        return jsonify(str( out ))
 
-    def delete(self, cluster_identifier, backup_identfier):
+    def delete(self, cluster_identifier=None, backup_identifier=None):
         logging.info("DELETE Request for Backups")
-        backups = backup().list_backups()# in hindsight, we should do something different here
-        return jsonify(backups)
+        if backup_identifier:
+            pass
+            raise NotImplementedError
+            # delete a backup
+            #out = backup().remove_cluster( cluster_identifier )
+            #return jsonify( out )
+        elif cluster_identifier:
+            out = backup().remove_cluster( cluster_identifier )
+            return jsonify( out )
+            # delete a cluster
+            # this is only the case when no backup will be deleted
+        #return jsonify(backups)
 
 
 
