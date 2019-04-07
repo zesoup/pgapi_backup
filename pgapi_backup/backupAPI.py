@@ -18,11 +18,12 @@ from pgapi_backup.backrest import backrest as backup
     should do no harm.
     """
 
+
 class _Backup(Resource):
     def get(self, cluster_identifier=None, backup_identifier=None):
         try:
             logging.info("GET Request for Backups")
-            out=None
+            out = None
             if backup_identifier:
                 out = backup().list_backups(backup_identifier=backup_identifier)
             if cluster_identifier:
@@ -31,17 +32,23 @@ class _Backup(Resource):
                 out = backup().list_backups()
             return jsonify(out)
         except Exception as e:
-            return abort ( 500, str(e) )
-
+            return abort(500, str(e))
 
     def put(self, cluster_identifier=None, backup_identifier=None):
         """PUT creates a cluster or starts a backup.
         To be somewhat REST compliant, it is of no relevance what
         exactly we PUT to as /backupidentifier."""
         out = None
-        if ( cluster_identifier and not backup_identifier):
+        if (cluster_identifier and not backup_identifier):
             out = backup().add_cluster(cluster_identifier, )
-        return jsonify(str( out ))
+        elif (backup_identifier):
+
+            parser = reqparse.RequestParser()
+            parser.add_argument("kind", type=str, default=None)
+            args = parser.parse_args(strict=False)
+
+            out = backup().take_backup(args['kind'])
+        return jsonify(str(out))
 
     def delete(self, cluster_identifier=None, backup_identifier=None):
         logging.info("DELETE Request for Backups")
@@ -50,20 +57,18 @@ class _Backup(Resource):
             raise NotImplementedError
             # delete a backup
             #out = backup().remove_cluster( cluster_identifier )
-            #return jsonify( out )
+            # return jsonify( out )
         elif cluster_identifier:
-            out = backup().remove_cluster( cluster_identifier )
-            return jsonify( out )
+            out = backup().remove_cluster(cluster_identifier)
+            return jsonify(out)
             # delete a cluster
             # this is only the case when no backup will be deleted
-        #return jsonify(backups)
-
-
-
-
+        # return jsonify(backups)
 
 
 def registerHandlers(api):
     api.add_resource(_Backup, '/backup/', endpoint="backup")
-    api.add_resource(_Backup, '/backup/<string:cluster_identifier>', endpoint="backup_cluster_identifier")
-    api.add_resource(_Backup, '/backup/<string:cluster_identifier>/<string:backup_identifier>', endpoint="backup_cluster_identifier_backup_identifier")
+    api.add_resource(_Backup, '/backup/<string:cluster_identifier>',
+                     endpoint="backup_cluster_identifier")
+    api.add_resource(_Backup, '/backup/<string:cluster_identifier>/<string:backup_identifier>',
+                     endpoint="backup_cluster_identifier_backup_identifier")
