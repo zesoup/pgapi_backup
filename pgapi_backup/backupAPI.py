@@ -42,12 +42,10 @@ class _Backup(Resource):
         if (cluster_identifier and not backup_identifier):
             out = backup().add_cluster(cluster_identifier, )
         elif (backup_identifier):
-
             parser = reqparse.RequestParser()
-            parser.add_argument("kind", type=str, default=None)
+            parser.add_argument("kind", type=str, default='full')
             args = parser.parse_args(strict=False)
-
-            out = backup().take_backup(args['kind'])
+            out = backup().take_backup(cluster_identifier=cluster_identifier, kind=args['kind'])
         return jsonify(str(out))
 
     def delete(self, cluster_identifier=None, backup_identifier=None):

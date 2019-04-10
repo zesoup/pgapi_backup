@@ -67,6 +67,8 @@ class backupsolution:
             self._take_incremental_backup(cluster_identifier)
         elif kind == 'logical':
             self._take_logical_backup(cluster_identifier)
+        else:
+            backupsolution._warn_not_implemented(f"undefined backupmethod {kind}")
 
     def _take_full_backup(self, cluster_identifier=None,):
         backupsolution._warn_not_implemented('FULL-BACKUP')

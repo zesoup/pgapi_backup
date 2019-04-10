@@ -36,8 +36,8 @@ class backrest(backupsolution):
         return out
 
     def _take_full_backup(self, cluster_identifier=None, ):
-
-        pass
+        out = backrest_cli.backup(cluster_identifier )
+        return {"stdout": out[0], "stderr": out[1]}
 
     def add_cluster(self, cluster_identifier=None):
         parser = reqparse.RequestParser()
