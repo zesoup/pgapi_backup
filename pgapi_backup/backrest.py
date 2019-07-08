@@ -8,6 +8,9 @@ from flask_restful import reqparse
 
 
 class backrest(backupsolution):
+    """Interface to pgbackrest as a backupsolution.
+        Redirects to a nested backrest_cli from cli-classes"""
+
 
     def _list(self):
         (stdout_json, stderr) = backrest_cli.info()

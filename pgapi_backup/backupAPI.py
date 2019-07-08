@@ -4,6 +4,8 @@ from flask_restful import Resource, reqparse
 import logging
 
 from pgapi_backup.backrest import backrest as backup
+from pgapi_backup.cliclasses import background_task
+
 """
     Backupimplementations share a common API, which makes them plugable via their
     parent 'backup'.
@@ -18,6 +20,23 @@ from pgapi_backup.backrest import backrest as backup
     should do no harm.
     """
 
+class _Activity(Resource):
+    def get(self,action_uuid=None, min_line=0):
+        out={}
+        logging.debug( action_uuid )
+        for active_task in background_task.active:
+            if action_uuid != None and active_task.uuid != action_uuid:
+                continue
+            logging.debug( active_task.uuid )
+            out[active_task.uuid] = {}
+            out[active_task.uuid]['stdout']=[]
+            out[active_task.uuid]['stderr']=[]
+            out[active_task.uuid]['rc']= active_task.rc
+            for line in active_task.stdout.get_new_lines(min_line):
+                out[active_task.uuid]['stdout'].append(str(line))
+            for line in active_task.stderr.get_new_lines(min_line):
+                out[active_task.uuid]['stderr'].append( str(line) )
+        return jsonify(out)
 
 class _Backup(Resource):
     def get(self, cluster_identifier=None, backup_identifier=None):
@@ -65,6 +84,10 @@ class _Backup(Resource):
 
 
 def registerHandlers(api):
+    api.add_resource(_Activity, '/backup_activity/', endpoint="backup_activity")
+    api.add_resource(_Activity, '/backup_activity/<string:action_uuid>/', endpoint="backup_activity_uuid")
+    api.add_resource(_Activity, '/backup_activity/<string:action_uuid>/<int:min_line>/', endpoint="backup_activity_uuid_min_line")
+
     api.add_resource(_Backup, '/backup/', endpoint="backup")
     api.add_resource(_Backup, '/backup/<string:cluster_identifier>',
                      endpoint="backup_cluster_identifier")
